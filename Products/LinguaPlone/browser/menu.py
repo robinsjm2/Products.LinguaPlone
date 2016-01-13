@@ -68,9 +68,18 @@ class TranslateMenu(BrowserMenu):
                     "height": 11,
                     }
 
-                menu.append(item)
+                # added by JR to check translator group membership so that only members of appropriate group can translate language
+                gt = getToolByName(context, 'portal_groups')
+                groups = gt.getGroupsByUserId( mt.getAuthenticatedMember().getUserName() )
+                group_ids = [group.getId() for group in groups]
+                translator_group = 'Translators-'+lang_id
 
-        if can_set_language or can_delete:
+                is_valid_translator_for_lang = translator_group in group_ids
+
+                if is_valid_translator_for_lang:
+                    menu.append(item)
+
+        if (can_set_language or can_delete) and is_valid_translator_for_lang:
             menu.append({
                 "title": _(u"label_manage_translations",
                            default=u"Manage translations..."),
