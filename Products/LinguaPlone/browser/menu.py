@@ -79,7 +79,7 @@ class TranslateMenu(BrowserMenu):
                 if is_valid_translator_for_lang:
                     menu.append(item)
 
-        if (can_set_language or can_delete) and is_valid_translator_for_lang:
+        if can_set_language or can_delete:
             menu.append({
                 "title": _(u"label_manage_translations",
                            default=u"Manage translations..."),
