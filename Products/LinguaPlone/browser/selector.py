@@ -6,6 +6,7 @@ from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_chain
 from Acquisition import aq_inner
 from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFCore.utils import getToolByName
 from ZTUtils import make_query
 
 from Products.LinguaPlone.interfaces import ITranslatable
@@ -138,9 +139,20 @@ class TranslatableLanguageSelector(LanguageSelector):
                 if self.set_language:
                     appendtourl += set_language
 
+            # added by JR: determine if authenticated member is a valid translator for the language
+            mt = getToolByName(context, "portal_membership")
+            gt = getToolByName(context, 'portal_groups')
+            groups = gt.getGroupsByUserId( mt.getAuthenticatedMember().getUserName() )
+            group_ids = [group.getId() for group in groups]
+            translator_group = 'Translators-'+code
+
+            is_valid_translator_for_lang = translator_group in group_ids
+
             if data['translated']:
                 trans, direct, has_view_permission = translations[code]
-                if not has_view_permission:
+
+                # added by JR: also check translators to see languages pertinent to their translation task only
+                if not has_view_permission or not is_valid_translator_for_lang:
                     # shortcut if the user cannot see the item
                     non_viewable.add((data['code']))
                     continue
@@ -161,7 +173,9 @@ class TranslatableLanguageSelector(LanguageSelector):
                 # IOW, it is a conscious decision to not take in account the
                 # use case where a user has View permission a folder but not on
                 # its default item.
-                if not has_view_permission:
+
+                # added by JR: also check translators to see languages pertinent to their translation task only
+                if not has_view_permission or not is_valid_translator_for_lang:
                     non_viewable.add((data['code']))
                     continue
 
