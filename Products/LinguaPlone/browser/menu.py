@@ -42,6 +42,11 @@ class TranslateMenu(BrowserMenu):
         can_set_language = mt.checkPermission(ModifyPortalContent, context)
         can_delete = mt.checkPermission(DeleteObjects, context.getParentNode())
 
+        # added by JR to check translator group membership so that only members of appropriate group can translate language
+        gt = getToolByName(context, 'portal_groups')
+        groups = gt.getGroupsByUserId( mt.getAuthenticatedMember().getUserName() )
+        group_ids = [group.getId() for group in groups]
+
         if not (can_translate or can_set_language or can_delete):
             return []
 
@@ -68,10 +73,6 @@ class TranslateMenu(BrowserMenu):
                     "height": 11,
                     }
 
-                # added by JR to check translator group membership so that only members of appropriate group can translate language
-                gt = getToolByName(context, 'portal_groups')
-                groups = gt.getGroupsByUserId( mt.getAuthenticatedMember().getUserName() )
-                group_ids = [group.getId() for group in groups]
                 translator_group = 'Translators-'+lang_id
 
                 is_valid_translator_for_lang = translator_group in group_ids
@@ -79,7 +80,10 @@ class TranslateMenu(BrowserMenu):
                 if is_valid_translator_for_lang:
                     menu.append(item)
 
-        if can_set_language or can_delete:
+        translation_manager_group = 'Translation-Managers'
+        is_translation_manager = translation_manager_group in group_ids
+
+        if is_translation_manager:
             menu.append({
                 "title": _(u"label_manage_translations",
                            default=u"Manage translations..."),
