@@ -177,8 +177,23 @@
                                 </td>
                                 <td class="targetLanguage" style="width: 50%"
                                     tal:define="read_only python:field.isLanguageIndependent(context)">
-                                    <tal:block condition="python:not read_only">
-                                      <metal:fieldMacro use-macro="python:here.widget(fieldname, mode='edit')" />
+                                    <tal:block condition="python:not read_only and fieldname != 'remoteUrl'">
+                                      <metal:fieldMacro use-macro="python:here.widget(fieldname, mode='edit')"/>
+                                    </tal:block>
+                                    <tal:block condition="python:not read_only and fieldname == 'remoteUrl'">
+                                         <input type="text"
+                                                name=""
+                                                class="blurrable firstToFocus"
+                                                id=""
+                                                value=""
+                                                size="30"
+                                                tal:attributes="name fieldname;
+                                                                id fieldname;
+                                                                value python:otherfield.getAccessor(other)();
+                                                                size python:30;
+                                                                placeholder python:'';
+                                                                maxlength python:511;"
+                                                />
                                     </tal:block>
                                     <tal:block condition="python:read_only">
                                       <metal:fieldMacro use-macro="python:here.widget(fieldname)" />
