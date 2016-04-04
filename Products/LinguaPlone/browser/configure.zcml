@@ -34,6 +34,12 @@
 
   <browser:page
     for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+    name="set-english-content-language"
+    class=".setupenglish.SetupEnglishView"
+    permission="cmf.ManagePortal" />
+
+  <browser:page
+    for="Products.CMFPlone.interfaces.IPloneSiteRoot"
     name="language-setup-folders"
     class=".setup.SetupView"
     permission="cmf.ManagePortal" />
